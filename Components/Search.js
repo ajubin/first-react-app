@@ -82,6 +82,16 @@ class Search extends Component {
     }
   }
 
+  _displayLoading() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    }
+  }
+
   _displayDetailForFilm = idFilm => {
     this.props.navigation.navigate("FilmDetailVue", { idFilm: idFilm });
   };
@@ -100,9 +110,6 @@ class Search extends Component {
           title="Recherche"
           onPress={() => this._searchFilms()}
         />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator animating={this.state.isLoading} size="large" />
-        </View>
         <FlatList
           data={this.state.films}
           keyExtractor={item => item.id.toString()}
@@ -119,6 +126,7 @@ class Search extends Component {
             }
           }}
         />
+        {this._displayLoading()}
       </View>
     );
   }
