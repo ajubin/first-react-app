@@ -10,6 +10,7 @@ import {
 
 import FilmItem from "./FilmItem";
 import films from "../Helpers/filmsData";
+import { getFilmsFromApiWithQuery } from "../API/TMDBApi";
 
 // Stylesheet plus performant que juste un objet
 const styles = StyleSheet.create({
@@ -32,13 +33,41 @@ const styles = StyleSheet.create({
 });
 
 class Search extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { films: [] };
+    this.searchedText = ""; // pas dans le state, car ne nécessite pas un rendu
+  }
+
+  _searchTextInputChanged(text) {
+    this.searchedText = text;
+  }
+
+  _loadFilms() {
+    console.log("Recherche du film", this.searchedText);
+    if (this.searchedText.length > 0) {
+      getFilmsFromApiWithQuery(this.searchedText).then(data => {
+        this.setState({ films: data.results });
+      });
+    }
+  }
+
   render() {
+    console.log("RENDERING");
     return (
       <View style={styles.container}>
-        <TextInput style={styles.input} placeholder="Titre du film" />
-        <Button style={styles.button} title="Recherche" onPress={() => {}} />
+        <TextInput
+          style={styles.input}
+          placeholder="Titre du film"
+          onChangeText={text => this._searchTextInputChanged(text)}
+        />
+        <Button
+          style={styles.button}
+          title="Recherche"
+          onPress={() => this._loadFilms()}
+        />
         <FlatList
-          data={films}
+          data={this.state.films}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => <FilmItem film={item} />}
         />
