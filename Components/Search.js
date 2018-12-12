@@ -5,7 +5,8 @@ import {
   TextInput,
   Button,
   StyleSheet,
-  FlatList
+  FlatList,
+  ActivityIndicator
 } from "react-native"; // exports nommés
 
 import FilmItem from "./FilmItem";
@@ -29,13 +30,22 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 50
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: 100,
+    left: 0,
+    right: 0,
+    bottom: 0
   }
 });
 
 class Search extends Component {
   constructor(props) {
     super(props);
-    this.state = { films: [] };
+    this.state = { films: [], isLoading: false };
     this.searchedText = ""; // pas dans le state, car ne nécessite pas un rendu
   }
 
@@ -46,8 +56,9 @@ class Search extends Component {
   _loadFilms() {
     console.log("Recherche du film", this.searchedText);
     if (this.searchedText.length > 0) {
+      this.setState({ isLoading: true });
       getFilmsFromApiWithQuery(this.searchedText).then(data => {
-        this.setState({ films: data.results });
+        this.setState({ films: data.results, isLoading: false });
       });
     }
   }
@@ -59,6 +70,7 @@ class Search extends Component {
         <TextInput
           style={styles.input}
           placeholder="Titre du film"
+          onSubmitEditing={() => this._loadFilms()}
           onChangeText={text => this._searchTextInputChanged(text)}
         />
         <Button
@@ -66,6 +78,9 @@ class Search extends Component {
           title="Recherche"
           onPress={() => this._loadFilms()}
         />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator animating={this.state.isLoading} size="large" />
+        </View>
         <FlatList
           data={this.state.films}
           keyExtractor={item => item.id.toString()}

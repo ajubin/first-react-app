@@ -12,3 +12,7 @@ export function getFilmsFromApiWithQuery(query) {
       console.error(err);
     });
 }
+
+export function getImageFromApi(name) {
+  return "https://image.tmdb.org/t/p/w300" + name;
+}
