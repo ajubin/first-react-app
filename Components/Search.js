@@ -10,7 +10,7 @@ import {
 } from "react-native"; // exports nommés
 
 import FilmItem from "./FilmItem";
-import films from "../Helpers/filmsData";
+
 import { getFilmsFromApiWithQuery } from "../API/TMDBApi";
 
 // Stylesheet plus performant que juste un objet
@@ -47,18 +47,38 @@ class Search extends Component {
     super(props);
     this.state = { films: [], isLoading: false };
     this.searchedText = ""; // pas dans le state, car ne nécessite pas un rendu
+    this.page = 0;
+    this.totalPages = 0;
   }
 
   _searchTextInputChanged(text) {
     this.searchedText = text;
   }
 
+  _searchFilms() {
+    this.page = 0;
+    this.totalPages = 0;
+    this.setState(
+      {
+        films: []
+      },
+      () => {
+        this._loadFilms();
+      }
+    );
+  }
+
   _loadFilms() {
     console.log("Recherche du film", this.searchedText);
     if (this.searchedText.length > 0) {
       this.setState({ isLoading: true });
-      getFilmsFromApiWithQuery(this.searchedText).then(data => {
-        this.setState({ films: data.results, isLoading: false });
+      getFilmsFromApiWithQuery(this.searchedText, this.page + 1).then(data => {
+        this.page = data.page;
+        this.totalPages = data.total_pages;
+        this.setState({
+          films: [...this.state.films, ...data.results], // garder les films récupérés précédemment, equivalent à un concat
+          isLoading: false
+        });
       });
     }
   }
@@ -70,13 +90,13 @@ class Search extends Component {
         <TextInput
           style={styles.input}
           placeholder="Titre du film"
-          onSubmitEditing={() => this._loadFilms()}
+          onSubmitEditing={() => this._searchFilms()}
           onChangeText={text => this._searchTextInputChanged(text)}
         />
         <Button
           style={styles.button}
           title="Recherche"
-          onPress={() => this._loadFilms()}
+          onPress={() => this._searchFilms()}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator animating={this.state.isLoading} size="large" />
@@ -85,6 +105,12 @@ class Search extends Component {
           data={this.state.films}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => <FilmItem film={item} />}
+          onEndReachedThreshold={0.5}
+          onEndReached={() => {
+            if (this.state.films.length > 0 && this.page < this.totalPages) {
+              this._loadFilms();
+            }
+          }}
         />
       </View>
     );
