@@ -16,8 +16,7 @@ import { getFilmsFromApiWithQuery } from "../API/TMDBApi";
 // Stylesheet plus performant que juste un objet
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginTop: 50
+    flex: 1
   },
   input: {
     marginTop: 20,
@@ -83,8 +82,11 @@ class Search extends Component {
     }
   }
 
+  _displayDetailForFilm = idFilm => {
+    this.props.navigation.navigate("FilmDetailVue", { idFilm: idFilm });
+  };
+
   render() {
-    console.log("RENDERING");
     return (
       <View style={styles.container}>
         <TextInput
@@ -104,7 +106,12 @@ class Search extends Component {
         <FlatList
           data={this.state.films}
           keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => <FilmItem film={item} />}
+          renderItem={({ item }) => (
+            <FilmItem
+              film={item}
+              displayDetailForFilm={this._displayDetailForFilm}
+            />
+          )}
           onEndReachedThreshold={0.5}
           onEndReached={() => {
             if (this.state.films.length > 0 && this.page < this.totalPages) {
