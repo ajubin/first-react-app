@@ -8,6 +8,8 @@ import {
   ScrollView
 } from "react-native";
 
+import { connect } from "react-redux";
+
 import { getFilmDetailFromApi, getImageFromApi } from "../API/TMDBApi";
 
 import moment from "moment";
@@ -136,4 +138,9 @@ class FilmDetail extends Component {
   }
 }
 
-export default FilmDetail;
+const mapStateToProps = state => {
+  return {
+    favoriteFIlms: state.favoritesFilm
+  };
+};
+export default connect(mapStateToProps)(FilmDetail);
