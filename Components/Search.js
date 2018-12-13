@@ -11,6 +11,8 @@ import {
 
 import FilmItem from "./FilmItem";
 
+import { connect } from "react-redux";
+
 import { getFilmsFromApiWithQuery } from "../API/TMDBApi";
 
 // Stylesheet plus performant que juste un objet
@@ -96,6 +98,13 @@ class Search extends Component {
     this.props.navigation.navigate("FilmDetailVue", { idFilm: idFilm });
   };
 
+  _isFilmFavorite(idFilm) {
+    if (this.props.favoritesFilm.findIndex(item => item.id === idFilm) !== -1) {
+      return true;
+    }
+    return false;
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -117,6 +126,7 @@ class Search extends Component {
             <FilmItem
               film={item}
               displayDetailForFilm={this._displayDetailForFilm}
+              isFilmFavorite={this._isFilmFavorite(item.id)}
             />
           )}
           onEndReachedThreshold={0.5}
@@ -132,4 +142,9 @@ class Search extends Component {
   }
 }
 
-export default Search;
+const mapStateToProps = state => {
+  return {
+    favoritesFilm: state.favoritesFilm
+  };
+};
+export default connect(mapStateToProps)(Search);

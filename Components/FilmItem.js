@@ -46,10 +46,22 @@ const styles = StyleSheet.create({
   dateText: {
     textAlign: "right",
     fontSize: 14
+  },
+  favoriteImage: {
+    width: 20,
+    height: 20,
+    marginRight: 5
   }
 });
 
 class FilmItem extends Component {
+  _displayFavoriteImage() {
+    if (this.props.isFilmFavorite) {
+      const sourceImage = require("../assets/ic_favorite.png");
+      return <Image style={styles.favoriteImage} source={sourceImage} />;
+    }
+  }
+
   render() {
     const { film, displayDetailForFilm } = this.props;
     return (
@@ -63,6 +75,7 @@ class FilmItem extends Component {
         />
         <View style={styles.contentContainer}>
           <View style={styles.headerContainer}>
+            {this._displayFavoriteImage()}
             <Text style={styles.titleText}>{film.title}</Text>
             <Text style={styles.voteText}>{film.vote_average}</Text>
           </View>

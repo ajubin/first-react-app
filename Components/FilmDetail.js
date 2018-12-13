@@ -5,7 +5,8 @@ import {
   Text,
   Image,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  TouchableOpacity
 } from "react-native";
 
 import { connect } from "react-redux";
@@ -56,6 +57,13 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     marginTop: 5
+  },
+  favoriteContainer: {
+    alignItems: "center"
+  },
+  favoriteImage: {
+    width: 40,
+    height: 40
   }
 });
 
@@ -82,6 +90,25 @@ class FilmDetail extends Component {
     }
   }
 
+  _displayFavoriteImage() {
+    var sourceImage = require("../assets/ic_favorite_border.png");
+    if (
+      this.props.favoritesFilm.findIndex(
+        item => item.id === this.state.film.id
+      ) !== -1
+    ) {
+      // Le film est dans les favoris
+      sourceImage = require("../assets/ic_favorite.png");
+    }
+    return <Image style={styles.favoriteImage} source={sourceImage} />;
+  }
+
+  _toggleFavorite() {
+    const action = { type: "TOGGLE_FAVORITE", value: this.state.film };
+    this.props.dispatch(action);
+    console.log("Toggle Favorite for film", this.state.film.title);
+  }
+
   _displayFilmDetail() {
     const film = this.state.film;
     if (!this.state.isLoading) {
@@ -92,6 +119,12 @@ class FilmDetail extends Component {
             source={{ uri: getImageFromApi(film.backdrop_path) }}
           />
           <Text style={styles.titleText}>{film.title}</Text>
+          <TouchableOpacity
+            style={styles.favoriteContainer}
+            onPress={() => this._toggleFavorite()}
+          >
+            {this._displayFavoriteImage()}
+          </TouchableOpacity>
           <Text style={styles.overviewText}>{film.overview}</Text>
           <Text style={styles.moreInfoText}>
             Sorti le {moment(new Date(film.release_date)).format("L")}
@@ -140,7 +173,7 @@ class FilmDetail extends Component {
 
 const mapStateToProps = state => {
   return {
-    favoriteFIlms: state.favoritesFilm
+    favoritesFilm: state.favoritesFilm
   };
 };
 export default connect(mapStateToProps)(FilmDetail);
